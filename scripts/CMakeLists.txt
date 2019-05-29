@@ -1,0 +1,1 @@
+configure_file(generate_tarball.sh.in generate_tarball.sh @ONLY)

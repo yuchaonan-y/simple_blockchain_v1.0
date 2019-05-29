@@ -1,0 +1,30 @@
+#! /bin/bash
+
+NAME=block_chain.tar.gz
+PREFIX=usr/opt/block_chain
+BUILD_DIR="@CMAKE_BINARY_DIR@"
+SRC_DIR="@CMAKE_SOURCE_DIR@"
+
+echo $PREFIX
+
+
+mkdir -p ./usr/opt/
+mkdir -p ./${PREFIX}
+mkdir -p ./usr/bin/
+
+# install binaries 
+cp  ${BUILD_DIR}/programs/nodeos/nodeos ${PREFIX}/
+cp  ${SRC_DIR}/install/libsqlite3.so ${PREFIX}/
+
+# install initial db
+cp  ${SRC_DIR}/install/initial.db ${PREFIX}/blocks.db
+
+# install contracts and configuration files
+
+
+bn=nodeos
+ln -sf /${PREFIX}/$bn usr/bin/$bn
+
+
+tar -cvzf $NAME usr/*
+rm -r usr
