@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Author" content="">
+  <meta name="Keywords" content="">
+  <meta name="Description" content="">
+  <title>测试 RPC API</title>
+ </head>
+ <body>
+    http://127.0.0.1:8888/v1/chain/get_info<br>
+    <button type="button" id="get_info_btn">查询区块链的基本信息</button><br><br>
+
+    http://127.0.0.1:8888/v1/chain/get_block<br>
+    区块号:<input type="text" value="0" id="blk_num"/><br>
+    <button type="button" id="get_block_btn">根据块号查询区块</button><br><br>
+
+    http://127.0.0.1:8888/v1/chain/get_blocks<br>
+    区块号:<input type="text" value="0,1" id="blk_nums"/><br>
+    <button type="button" id="get_blocks_btn">根据块号查询多个区块</button><br><br>
+
+    http://127.0.0.1:8888/v1/chain/publish_blk<br>
+    <button type="button" id="publish_blk_btn">区块上链</button><br><br>
+    http://127.0.0.1:8888/v1/chain/push_transaction<br>
+    交易时间:<input type="text" value="2019-04-23T06:21:34" placeholder="yyyy-mm-ddThh:MM:ss" id="time_point"/>
+    <br>
+    交易数据:<input type="text" value="7468697320697320746573742064617461" id="data"/>
+    <button id="fill_data">&lt;-----</button>
+    <input type="text" value="" id="data_str" placeholder=""/><br>
+    附加数据:<input type="text" value="74686973206973207465737420617474616368" id="attach"/>
+    <button id="fill_attach">&lt;-----</button>
+    <input type="text" value="" id="attach_str" placeholder=""/>
+    <br>
+    交易签名:<input type="text" value="SIG_K1_KfgNkBgEQppxa1DJGupnEWdKzukgVSbRw5VSWEbTiNQbbSjAMkAuoiwXLt3AXyzPFFNt4WHpaqF4BT4TT8mb8MEGJDbVdr" id="signature"/><br>
+    发起交易者的公钥:<input type="text" value="EOS6BJDmPWMuHLTKWAVzBNMWJWwZ5Shk8NHwYryrbBtAs2SVALvpZ" id="pub_key"/><br>
+    <button type="button" id="push_transaction_btn">发布交易</button><br><br>
+
+===========================================================================<br><br>
+
+    http://127.0.0.1:8888/v1/chain/sign_trx<br>
+    交易时间:<input type="text" value="2019-04-23T06:21:34" id="sign_time_point"/><br>
+    交易数据:<input type="text" value="7468697320697320746573742064617461" id="sign_data"/>
+    <button id="fill_sign_data" >&lt;-----</button>
+    <input type="text" value="" id="sign_data_str" placeholder=""/><br>
+    附加数据:<input type="text" value="74686973206973207465737420617474616368" id="sign_attach"/>
+    <button id="fill_sign_attach">&lt;-----</button>
+    <input type="text" value="" id="sign_attach_str" placeholder=""/><br>
+    私钥:<input type="text" value="5K2x8VJr7irT38ZbgsP7e4hzGT81E5LK9BmLxrN2T6GtNHKmoLB" id="sign_priv_key"/><br>
+    <button type="button" id="sign_trx_btn">给交易签名</button><br><br>
+ 
+    http://127.0.0.1:8888/v1/chain/get_keys<br>
+    <button type="button" id="get_keys_btn">生成一个公私密钥对</button><br><br>
+
+    http://127.0.0.1:8888/v1/chain/char2hex<br>
+    ascii字符:<input type="text" value="today is thusday" id="ascii"/><br>
+    <button type="button" id="char2hex_btn">ascii字符转hex字符</button><br><br>
+
+    http://127.0.0.1:8888/v1/chain/hex2char<br>
+    hex字符:<input type="text" value="746f6461792069732074687573646179" id="hex"/><br>
+    <button type="button" id="hex2char_btn">hex字符转ascii字符</button><br><br>
+
+ </body>
+<script src="js/jquery-2.1.4.min.js"></script>
+<script type="text/javascript">
+
+
+window.onload=function(){
+
+    $("#get_info_btn").click(function(){
+        ajax("http://127.0.0.1:8888/v1/chain/get_info", null, callback_print);
+    });
+
+    $("#get_block_btn").click(function(){
+        blk_num = $("#blk_num").val();
+        json = "{\"blk_num\":" + blk_num + "}";
+        ajax("http://127.0.0.1:8888/v1/chain/get_block", json, callback_print);
+    });
+
+    $("#get_blocks_btn").click(function(){
+        blk_num = $("#blk_nums").val();
+        json = "{\"blk_nums\":[" + blk_num + "]}";
+        ajax("http://127.0.0.1:8888/v1/chain/get_blocks", json, callback_print);
+    });
+    $("#publish_blk_btn").click(function(){
+        ajax("http://127.0.0.1:8888/v1/chain/publish_blk", null, callback_print);
+    });
+
+//["EOS6BJDmPWMuHLTKWAVzBNMWJWwZ5Shk8NHwYryrbBtAs2SVALvpZ","5K2x8VJr7irT38ZbgsP7e4hzGT81E5LK9BmLxrN2T6GtNHKmoLB"]
+
+    $("#push_transaction_btn").click(function(){
+        time = $("#time_point").val();
+        data = $("#data").val();
+        signature = $("#signature").val();
+        pub_key = $("#pub_key").val();
+        attach = $("#attach").val();
+        json = "{\"time_point\":\"" + time + "\"," 
+        + "\"data\":\"" + data + "\","
+        + "\"attach\":\"" + attach + "\","
+        + "\"signature\":\"" + signature + "\","
+        + "\"pub_key\":\"" + pub_key + "\"}";
+        ajax("http://127.0.0.1:8888/v1/chain/push_transaction", json, callback_print);
+    });
+
+    $("#fill_data").click(function(){
+        str = $("#data_str").val();
+        json = "{\"str\":\"" + str + "\"}";
+        function callback(str){
+            $("#data").val(str);
+        };
+        ajax("http://127.0.0.1:8888/v1/chain/char2hex", json, callback);
+    });
+
+    $("#fill_attach").click(function(){
+        str = $("#attach_str").val();
+        json = "{\"str\":\"" + str + "\"}";
+        function callback(str){
+            $("#attach").val(str);
+        };
+        ajax("http://127.0.0.1:8888/v1/chain/char2hex", json, callback);
+    });
+
+    $("#fill_sign_data").click(function(){
+        str = $("#sign_data_str").val();
+        json = "{\"str\":\"" + str + "\"}";
+        function callback(str){
+            $("#sign_data").val(str);
+        };
+        ajax("http://127.0.0.1:8888/v1/chain/char2hex", json, callback);
+    });
+
+    $("#fill_sign_attach").click(function(){
+        str = $("#sign_attach_str").val();
+        json = "{\"str\":\"" + str + "\"}";
+        function callback(str){
+            $("#sign_attach").val(str);
+        };
+        ajax("http://127.0.0.1:8888/v1/chain/char2hex", json, callback);
+    });
+
+//==================================================
+    $("#sign_trx_btn").click(function(){
+        time = $("#sign_time_point").val();
+        data = $("#sign_data").val();
+        priv_key = $("#sign_priv_key").val();
+        attach = $("#sign_attach").val();
+        json = "{\"trx\":{\"time_point\":\"" + time + "\"," 
+        + "\"data\":\"" + data + "\","
+        + "\"attach\":\"" + attach + "\"},"
+        + "\"key\":\"" + priv_key + "\"}";
+        ajax("http://127.0.0.1:8888/v1/chain/sign_trx", json, callback_print);
+    });
+
+    $("#get_keys_btn").click(function(){
+        ajax("http://127.0.0.1:8888/v1/chain/get_keys", null, callback_print);
+    });
+
+    $("#char2hex_btn").click(function(){
+        str = $("#ascii").val();
+        json = "{\"str\":\"" + str + "\"}";
+        ajax("http://127.0.0.1:8888/v1/chain/char2hex", json, callback_print);
+    });
+    $("#hex2char_btn").click(function(){
+        hex = $("#hex").val();
+        json = "{\"hex\":\"" + hex + "\"}";
+        ajax("http://127.0.0.1:8888/v1/chain/hex2char", json, callback_print);
+    });
+}
+
+function callback_print(obj)
+{
+    console.log(obj);
+    if(typeof obj == "string")
+    {
+        alert(obj);
+        return;
+    }
+    str = "";
+    for (var item in obj){
+        str += item+":"+obj[item]+"\n";
+    }
+    alert(str);
+}
+
+function ajax(url, data, success_callback)
+{
+    $.ajax({
+            url: url,
+            type: "POST",
+            data: data,		
+            success: success_callback,
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+				console.log("error happened");
+                alert(errorThrown);
+            }
+        });
+}
+
+</script>
+</html>

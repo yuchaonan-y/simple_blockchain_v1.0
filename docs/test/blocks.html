@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>区块链展示</title>
+    <style>
+	body{text-align:center} 
+    *{margin:0;padding:0px;font-size: 12px;}
+    a{text-decoration: none;}
+    ul{list-style: none;}
+    #box{width:500px;margin:20px auto;}
+    .btn{display:block;width:50px;height:50px;margin:20px auto;line-height: 50px;text-align: center;border:1px #000 solid;color:#000;transition:.3s linear;}
+    .btn:hover{background: #000;color:#fff;font-weight: bold;}
+    #con{margin-top:20px;}
+    #con li{line-height: 30px;text-align: center;}
+	.divv {background-color:#ffcc99;border:1px solid #000;margin:0 auto;width:750px;height:760px;border-radius:8px;}/* div 横排显示float:left; */
+	.titileli{font-size:13px;font-weight: bold;}
+	div:hover {background:#f8bd82;color: #ff6699;font-weight: bold;transition:.4s linear;}
+	.shang {background-color:#ffcc99;border:1px solid #000;margin:0 auto;width:750px;height:260px;border-radius:8px;}/* div 横排显示float:left; */
+	.str2div {background-color:#ffcc99;border:1px solid #000;margin:0 auto;border-radius:8px;}/* div 横排显示float:left; */
+	span{font-weight: bold;}
+	.ti{border:1px;}
+	
+    </style>
+	<link href="css/ruige.css" type="text/css" rel="stylesheet"/>
+
+</head>
+<body align="center">
+
+        
+</body>
+    <script src="js/jquery-2.1.4.min.js"></script>
+    <script>
+	var str2 = "";
+    var object;
+        $(function(){
+                $.ajax({
+                    type: "POST", //请求的方式，也有get请求
+                    url: "http://127.0.0.1:8888/v1/chain/get_blocks", //请求地址，后台提供的,这里我在本地自己建立了个json的文件做例子
+                    dataType: "json", //json格式，后台返回的数据为json格式的。
+                    //data:"{\"blk_nums\":0}",
+                    success:function(data){
+						console.log(data);
+                        object = data;
+						var obj;
+						var str1 = "";
+						console.log(data[0].trxs);
+                        
+						obj = data[0].trxs;
+						//遍历数据
+						$.each(data,function(index,element){
+							str1 +="<div class='shang' id='dv"+index+"' >" +
+                                     "<div><span style='float:left'>区块头</span><br/><br/>" +
+                                        "<ul><li class='titileli'>区块生成时间</li><li>" + element['time_point']+"</li>" + 
+                                        "<li class='titileli'>前一个区块的HASH值<li>" + element['prior_hash']+"</li>" + 
+                                        "<li class='titileli'>区块号<li>" + element['blk_num']+"</li></ul></div>" +
+                                        "<span style='float:left'></span><br/>" + 
+                                        "<ul><li class='titileli'>默克尔树根<li>" + element['merkle_root']+"</li>" +
+                                        "<li class='titileli'>区块签名<li>" + element['sig']+"</li></ul>" +
+                                        
+                                        "<div class='ti' id='ti" + index + "'></div><br/><br/>" +
+                                         "<span><button class='butt' id='butt" + index + "' onclick='kanti(" + index + ")'>查看交易</button></span><br/>" +
+                                          "</div><span><img src='img/jiantou.png'/></span><br/>"; 
+						});
+						$('body').append(str1);
+                    },
+					error:function(XMLHttpRequest,textStatus,errorThrown){    
+						console.log("jsonp.error:"+textStatus);    
+					}
+                });
+        });
+		
+		function kanti(item){
+            console.log($(".str2div_" + item).length);
+            if ($(".str2div_" + item).length > 0) {
+                if ($(".str2div_" + item).hasClass("fold")) {
+                    console.log("fold");
+                    $("#dv" + item + "").css
+                    $("#dv" + item + "").css({"background-color":"#ffcc99","height":"260px"});
+                    $(".str2div_" + item).toggleClass("fold");
+                    $(".str2div_" + item).remove();
+                    return;
+                }
+            }
+			str2="";
+            var obj = object[item].trxs;
+            len = obj.length;
+            h = 260 + len * 165;
+            $("#dv" + item + "").css({"background-color":"#ffcc99","height":"" + h + ""});
+            $(".str2div_" + item).toggle();
+            //遍历数据
+            $.each(obj,function(index,elementtrxs){      
+                str2 +="<div class='str2div_" + item + "  fold ' id='str2div_" + item + "_" + index + "' style='display:none;'>" +
+                         "<span class='btn1' style='float:left' href='javascript:;'>交易</span><br/><br/> " +
+                         "<ul><li class='titileli'>交易时间</li><li>" + elementtrxs['time_point'] + "</li>" +
+                             "<li class='titileli'>交易数据<li>" + elementtrxs['data']+"</li>" +
+                             "<li class='titileli'>交易签名<li>" + elementtrxs['signature']+"</li>" +
+                             "<li class='titileli'>交易公钥<li>" + elementtrxs['pub_key']+"</li></ul></div>";
+            })
+            $("#ti" + item + "").append(str2);
+            $(".str2div_" + item).toggle();
+		}
+    </script>
+</html>
